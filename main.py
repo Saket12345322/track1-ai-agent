@@ -9,6 +9,10 @@ CORS(app)
 def home():
     return send_file("index.html")
 
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"})
+
 @app.route("/summarize", methods=["POST"])
 def summarize():
     data = request.get_json()
@@ -27,3 +31,17 @@ def ask():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)
+```
+
+Save with **Ctrl+S** then push:
+```
+cd "D:\GEN AI\track 1"
+$env:PATH += ";C:\Program Files\Git\cmd"
+git add main.py
+git commit -m "Add health endpoint"
+git push
+```
+
+Then set up UptimeRobot to ping:
+```
+https://track1-ai-agent-production.up.railway.app/health
