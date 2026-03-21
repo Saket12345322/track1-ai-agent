@@ -33,15 +33,17 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)
 ```
 
-Save with **Ctrl+S** then push:
+## Step 4: Save with Ctrl+S
+
+## Step 5: Verify no backticks
+```
+Get-Content "D:\GEN AI\track 1\main.py"
+```
+
+## Step 6: Push to GitHub
 ```
 cd "D:\GEN AI\track 1"
 $env:PATH += ";C:\Program Files\Git\cmd"
 git add main.py
-git commit -m "Add health endpoint"
+git commit -m "Fix main.py"
 git push
-```
-
-Then set up UptimeRobot to ping:
-```
-https://track1-ai-agent-production.up.railway.app/health
