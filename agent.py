@@ -1,5 +1,6 @@
 from groq import Groq
 from tavily import TavilyClient
+from datetime import datetime
 import os
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
@@ -21,13 +22,18 @@ def summarize_text(text: str) -> str:
     return response.choices[0].message.content
 
 def ask_question(question: str) -> str:
+    current_time = datetime.now().strftime("%I:%M %p IST, %A %B %d, %Y")
     web_results = search_web(question)
     prompt = f"""You are a helpful AI assistant with access to live web search results.
+Current date and time: {current_time}
 
 Web Search Results:
 {web_results}
 
-Answer this question: {question}"""
+Answer this question: {question}
+
+Give a clear and accurate answer."""
+
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[{"role": "user", "content": prompt}]
