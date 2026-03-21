@@ -1,9 +1,6 @@
-﻿from groq import Groq
+from groq import Groq
 from tavily import TavilyClient
-from dotenv import load_dotenv
 import os
-
-load_dotenv()
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 tavily = TavilyClient(api_key=os.environ.get("TAVILY_API_KEY"))
@@ -30,27 +27,9 @@ def ask_question(question: str) -> str:
 Web Search Results:
 {web_results}
 
-Based on the above real-time information, answer this question:
-{question}
-
-Give a clear, accurate answer using the web results provided."""
-
+Answer this question: {question}"""
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[{"role": "user", "content": prompt}]
     )
     return response.choices[0].message.content
-```
-
-Save with Ctrl+S.
-
----
-
-## Step 5: Test it locally first
-```
-python main.py
-```
-
-Then in second PowerShell window:
-```
-Invoke-WebRequest -Uri "http://127.0.0.1:8080/ask" -Method POST -ContentType "application/json" -Body '{"question": "What is the latest news in AI today?"}' -UseBasicParsing
