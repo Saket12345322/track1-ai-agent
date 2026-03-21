@@ -1,4 +1,4 @@
-﻿from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from agent import summarize_text, ask_question
 
@@ -31,19 +31,3 @@ def ask():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)
-```
-
-## Step 4: Save with Ctrl+S
-
-## Step 5: Verify no backticks
-```
-Get-Content "D:\GEN AI\track 1\main.py"
-```
-
-## Step 6: Push to GitHub
-```
-cd "D:\GEN AI\track 1"
-$env:PATH += ";C:\Program Files\Git\cmd"
-git add main.py
-git commit -m "Fix main.py"
-git push
