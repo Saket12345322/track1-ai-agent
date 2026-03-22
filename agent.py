@@ -13,7 +13,9 @@ SIMPLE_PHRASES = [
     "good morning", "good evening", "good night", "good afternoon",
     "bye", "goodbye", "thanks", "thank you", "ok", "okay",
     "who are you", "what are you", "what can you do",
-    "help", "tell me about yourself"
+    "help", "tell me about yourself""can we have conversation", "can we talk", "can we chat",
+    "lets talk", "let's talk", "lets chat", "let's chat",
+    "i want to talk", "talk to me", "chat with me"
 ]
 
 TIME_PHRASES = [
