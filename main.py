@@ -26,7 +26,8 @@ def ask():
     data = request.get_json()
     if not data or "question" not in data:
         return jsonify({"error": "Please provide question field"}), 400
-    result = ask_question(data["question"])
+    history = data.get("history", [])
+    result = ask_question(data["question"], history)
     return jsonify({"answer": result})
 
 if __name__ == "__main__":
