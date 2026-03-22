@@ -87,20 +87,4 @@ Give a clear and accurate answer."""
         messages=[{"role": "user", "content": prompt}]
     )
     return response.choices[0].message.content
-```
 
-Click **"Commit changes"** → **"Commit changes"** again.
-
----
-
-## Also update requirements.txt on GitHub:
-
-Click `requirements.txt` → pencil ✏️ → delete all → paste:
-```
-flask
-flask-cors
-groq
-gunicorn
-python-dotenv
-tavily-python
-pytz
