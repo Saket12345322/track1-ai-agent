@@ -7,37 +7,26 @@ import pytz
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 tavily = TavilyClient(api_key=os.environ.get("TAVILY_API_KEY"))
 
-SIMPLE_PHRASES = [
-    "hi", "hello", "hey", "hii", "helo", "howdy",
-    "how are you", "how r you", "whats up", "what's up",
-    "good morning", "good evening", "good night", "good afternoon",
-    "bye", "goodbye", "thanks", "thank you", "ok", "okay",
-    "who are you", "what are you", "what can you do",
-    "help", "tell me about yourself""can we have conversation", "can we talk", "can we chat",
-    "lets talk", "let's talk", "lets chat", "let's chat",
-    "i want to talk", "talk to me", "chat with me"
-]
-
-TIME_PHRASES = [
-    "what time", "current time", "time now", "time in india",
+TIME_PHRASES = ["what time", "current time", "time now", "time in india",
     "what is the time", "whats the time", "time is it",
     "what date", "current date", "todays date", "today's date",
-    "what day", "current day"
-]
-
-def is_simple_conversation(question: str) -> bool:
-    q = question.lower().strip()
-    for phrase in SIMPLE_PHRASES:
-        if q == phrase or q.startswith(phrase):
-            return True
-    return len(q.split()) <= 3 and "?" not in q
+    "what day", "current day"]
 
 def is_time_question(question: str) -> bool:
     q = question.lower().strip()
-    for phrase in TIME_PHRASES:
-        if phrase in q:
-            return True
-    return False
+    return any(phrase in q for phrase in TIME_PHRASES)
+
+def is_conversational(question: str) -> bool:
+    conversational_prompt = f"""Is this message a casual conversation, greeting, or small talk (NOT a question needing research)?
+Message: "{question}"
+Answer with only YES or NO."""
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[{"role": "user", "content": conversational_prompt}],
+        max_tokens=5
+    )
+    answer = response.choices[0].message.content.strip().upper()
+    return "YES" in answer
 
 def get_india_time() -> str:
     india_tz = pytz.timezone("Asia/Kolkata")
@@ -59,34 +48,51 @@ def summarize_text(text: str) -> str:
     )
     return response.choices[0].message.content
 
-def ask_question(question: str) -> str:
+def ask_question(question: str, history: list = None) -> str:
     current_time = get_india_time()
+    if history is None:
+        history = []
 
     if is_time_question(question):
-        prompt = f"""The current time in India is exactly: {current_time}
-Answer this question directly using only this time: {question}
-Be direct and confident. Do not search the web."""
+        prompt = f"""The current exact time in India right now is: {current_time}
+Answer this directly and confidently: {question}
+Just give the time. Do not mention web search."""
+        messages = [{"role": "user", "content": prompt}]
 
-    elif is_simple_conversation(question):
-        prompt = f"""You are a friendly AI assistant named "My AI Agent".
+    elif is_conversational(question):
+        system = f"""You are a friendly AI assistant named "My AI Agent".
 Current time: {current_time}
-The user said: {question}
-Respond warmly and briefly. Tell them you can help with questions, web search, summarizing text and coding."""
+You can:
+- Answer any question
+- Search the web for live information
+- Summarize text
+- Help with coding
+- Detect and respond in any language
+- Have friendly conversations
+Reply in ONE or TWO short friendly sentences maximum."""
+        messages = [{"role": "system", "content": system}]
+        for h in history:
+            messages.append(h)
+        messages.append({"role": "user", "content": question})
 
     else:
         web_results = search_web(question)
-        prompt = f"""You are a helpful AI assistant with live web search access.
+        system = f"""You are a helpful AI assistant with live web search access.
 Current date and time: {current_time}
+You can understand and respond in ANY language in the world.
+If the user writes in Hindi, reply in Hindi.
+If the user writes in French, reply in French.
+Always match the language of the user.
 
 Web Search Results:
-{web_results}
-
-Answer this question: {question}
-Give a clear and accurate answer."""
+{web_results}"""
+        messages = [{"role": "system", "content": system}]
+        for h in history:
+            messages.append(h)
+        messages.append({"role": "user", "content": question})
 
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[{"role": "user", "content": prompt}]
+        messages=messages
     )
     return response.choices[0].message.content
-
